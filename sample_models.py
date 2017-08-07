@@ -77,11 +77,15 @@ def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
     """ Build a deep recurrent network for speech 
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
-    simp_rnn1   = GRU(units, activation='relu', return_sequences=True, implementation=2, name='rnn1')(input_data)
-    bn_rnn1     = BatchNormalization(name='bn_rnn1')(simp_rnn1)
-    simp_rnn2   = GRU(units, activation='relu', return_sequences=True, implementation=2, name='rnn2')(bn_rnn1)
-    bn_rnn2     = BatchNormalization(name='bn_rnn2')(simp_rnn2)
-    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn2)
+    simp_rnn_array = []
+    bn_rnn_array = []
+    for i in range(recur_layers):
+        if i is 0:
+            simp_rnn_array.append(GRU(units, activation='relu', return_sequences=True, implementation=2, name='rnn'+str(i))(input_data))
+        else:
+            simp_rnn_array.append(GRU(units, activation='relu', return_sequences=True, implementation=2, name='rnn'+str(i))(bn_rnn_array[i-1]))
+        bn_rnn_array.append(BatchNormalization(name='bn_rnn'+str(i))(simp_rnn_array[i]))
+    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn_array[recur_layers-1])
     y_pred      = Activation('softmax', name='softmax')(time_dense)
 
     model = Model(inputs=input_data, outputs=y_pred)
