@@ -213,23 +213,55 @@ def mp_output_length(input_length, filter_size, border_mode, stride, dilation=1)
         output_length = input_length - dilated_filter_size + 1
     return (output_length + stride - 1) // stride // 2
 
-def final_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
+def cnn_mp_dp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
     """ Build a deep network for speech 
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
-    dp_conv_1d  = Dropout(0.5)(conv_1d)
-    mp_conv_1d  = MaxPooling1D(2)(dp_conv_1d)
-    bn_cnn      = BatchNormalization(name='bn_conv_1d')(mp_conv_1d)
-    bidir_rnn1  = Bidirectional(GRU(units, activation='relu', return_sequences=True, implementation=2, dropout_W = 0.5, name='gru_in_bi1'), name='bidir_rnn1')(bn_cnn)
-    bn_bi_rnn1  = BatchNormalization(name='bn_bi_rnn')(bidir_rnn1)
-    bidir_rnn2  = Bidirectional(GRU(units, activation='relu', return_sequences=True, implementation=2, dropout_W = 0.5, name='gru_in_bi2'), name='bidir_rnn2')(bn_bi_rnn1)
-    bn_bi_rnn2  = BatchNormalization(name='bn_rnn')(bidir_rnn2)
-    time_dense  = TimeDistributed(Dense(output_dim))(bn_bi_rnn2)
+    mp_conv_1d  = MaxPooling1D(2)(conv_1d)
+    dp_conv_1d  = Dropout(0.5)(mp_conv_1d)
+    bn_cnn      = BatchNormalization(name='bn_conv_1d')(dp_conv_1d)
+    simp_rnn    = GRU(units, activation='relu', return_sequences=True, implementation=2, dropout_W = 0.5, name='GRU')(bn_cnn)
+    bn_rnn      = BatchNormalization(name='bn_rnn')(simp_rnn)
+    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn)
     y_pred      = Activation('softmax', name='softmax')(time_dense)
 
     model = Model(inputs=input_data, outputs=y_pred)
     model.output_length = lambda x: mp_output_length(
-        x, kernel_size, conv_border_mode, conv_stride, dilation=5)
+        x, kernel_size, conv_border_mode, conv_stride)
+    print(model.summary())
+    return model
+
+def dil_cnn_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
+    """ Build a recurrent + convolutional network for speech 
+    """
+    input_data  = Input(name='the_input', shape=(None, input_dim))
+    conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
+    bn_cnn      = BatchNormalization(name='bn_conv_1d')(conv_1d)
+    simp_rnn    = GRU(units, activation='relu', return_sequences=True, implementation=2, name='GRU')(bn_cnn)
+    bn_rnn      = BatchNormalization(name='bn_rnn')(simp_rnn)
+    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn)
+    y_pred      = Activation('softmax', name='softmax')(time_dense)
+
+    model = Model(inputs=input_data, outputs=y_pred)
+    model.output_length = lambda x: cnn_output_length(
+        x, kernel_size, conv_border_mode, conv_stride, dilation=10)
+    print(model.summary())
+    return model
+
+def dil_cnn_bidir_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
+    """ Build a recurrent + convolutional network for speech 
+    """
+    input_data  = Input(name='the_input', shape=(None, input_dim))
+    conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
+    bn_cnn      = BatchNormalization(name='bn_conv_1d')(conv_1d)
+    bidir_rnn   = Bidirectional(GRU(units, activation='relu', return_sequences=True, implementation=2, name='GRU'), name='bidirectional')(bn_cnn)
+    bn_rnn      = BatchNormalization(name='bn_rnn')(bidir_rnn)
+    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn)
+    y_pred      = Activation('softmax', name='softmax')(time_dense)
+
+    model = Model(inputs=input_data, outputs=y_pred)
+    model.output_length = lambda x: cnn_output_length(
+        x, kernel_size, conv_border_mode, conv_stride, dilation=10)
     print(model.summary())
     return model
