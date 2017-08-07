@@ -3,6 +3,7 @@ from keras.models import Model
 from keras.layers import (BatchNormalization, Conv1D, Dense, Input, 
     TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LSTM, MaxPooling1D, Dropout)
 
+# model_0
 def simple_rnn_model(input_dim, output_dim=29):
     """ Build a recurrent network for speech 
     """
@@ -15,6 +16,7 @@ def simple_rnn_model(input_dim, output_dim=29):
     print(model.summary())
     return model
 
+# model_1
 def rnn_model(input_dim, units, activation, output_dim=29):
     """ Build a recurrent network for speech 
     """
@@ -29,7 +31,7 @@ def rnn_model(input_dim, units, activation, output_dim=29):
     print(model.summary())
     return model
 
-
+# model_2
 def cnn_rnn_model(input_dim, filters, kernel_size, conv_stride,
     conv_border_mode, units, output_dim=29):
     """ Build a recurrent + convolutional network for speech 
@@ -70,6 +72,7 @@ def cnn_output_length(input_length, filter_size, border_mode, stride,
         output_length = input_length - dilated_filter_size + 1
     return (output_length + stride - 1) // stride
 
+# model_3
 def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
     """ Build a deep recurrent network for speech 
     """
@@ -86,6 +89,7 @@ def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
     print(model.summary())
     return model
 
+# model_4
 def bidirectional_rnn_model(input_dim, units, output_dim=29):
     """ Build a bidirectional recurrent network for speech
     """
@@ -100,9 +104,10 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
     print(model.summary())
     return model
 
+# model_5
 def cnn_lstm_model(input_dim, filters, kernel_size, conv_stride,
     conv_border_mode, units, output_dim=29):
-    """ Build a recurrent + convolutional network for speech 
+    """ Build a recurrent(LSTM) + convolutional network for speech 
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
@@ -118,9 +123,9 @@ def cnn_lstm_model(input_dim, filters, kernel_size, conv_stride,
     print(model.summary())
     return model
 
-def cnn_dp_rnn_model(input_dim, filters, kernel_size, conv_stride,
-    conv_border_mode, units, output_dim=29):
-    """ Build a recurrent + convolutional network for speech 
+# model_6
+def cnn_dp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
+    """ Build a recurrent + dropout + convolutional network for speech 
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
@@ -137,6 +142,7 @@ def cnn_dp_rnn_model(input_dim, filters, kernel_size, conv_stride,
     print(model.summary())
     return model
 
+# model_7
 def cnn_rnn_dp_model(input_dim, filters, kernel_size, conv_stride,
     conv_border_mode, units, output_dim=29):
     """ Build a recurrent + convolutional network for speech 
@@ -155,6 +161,7 @@ def cnn_rnn_dp_model(input_dim, filters, kernel_size, conv_stride,
     print(model.summary())
     return model
 
+# model_8
 def cnn_dp_rnn_dp_model(input_dim, filters, kernel_size, conv_stride,
     conv_border_mode, units, output_dim=29):
     """ Build a recurrent + convolutional network for speech 
@@ -174,8 +181,9 @@ def cnn_dp_rnn_dp_model(input_dim, filters, kernel_size, conv_stride,
     print(model.summary())
     return model
 
+# model_9
 def cnn_mp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
-    """ Build a recurrent + convolutional network for speech 
+    """ CNN + MaxPooling + BatchNormal + RNN(GRU) + TimeDistributed
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
@@ -213,8 +221,9 @@ def mp_output_length(input_length, filter_size, border_mode, stride, dilation=1)
         output_length = input_length - dilated_filter_size + 1
     return (output_length + stride - 1) // stride // 2
 
+# model_10
 def cnn_mp_dp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
-    """ Build a deep network for speech 
+    """ CNN + MaxPooling + Dropout + BatchNormal + RNN + BatchNormal + TimeDistributed
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
@@ -232,8 +241,9 @@ def cnn_mp_dp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_borde
     print(model.summary())
     return model
 
+# model_11
 def dil_cnn_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
-    """ Build a recurrent + convolutional network for speech 
+    """ CNN(Dilated) + BatchNormal + RNN + BatchNormal + TimeDistributed
     """
     input_data  = Input(name='the_input', shape=(None, input_dim))
     conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
@@ -249,19 +259,8 @@ def dil_cnn_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_
     print(model.summary())
     return model
 
-def dil_cnn_bidir_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
+# model_end
+def final_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units, output_dim=29):
     """ Build a recurrent + convolutional network for speech 
     """
-    input_data  = Input(name='the_input', shape=(None, input_dim))
-    conv_1d     = Conv1D(filters, kernel_size, strides=conv_stride, padding=conv_border_mode, activation='relu', name='conv1d')(input_data)
-    bn_cnn      = BatchNormalization(name='bn_conv_1d')(conv_1d)
-    bidir_rnn   = Bidirectional(GRU(units, activation='relu', return_sequences=True, implementation=2, name='GRU'), name='bidirectional')(bn_cnn)
-    bn_rnn      = BatchNormalization(name='bn_rnn')(bidir_rnn)
-    time_dense  = TimeDistributed(Dense(output_dim))(bn_rnn)
-    y_pred      = Activation('softmax', name='softmax')(time_dense)
-
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: cnn_output_length(
-        x, kernel_size, conv_border_mode, conv_stride, dilation=10)
-    print(model.summary())
-    return model
+    return cnn_dp_rnn_model(input_dim, filters, kernel_size, conv_stride, conv_border_mode, units)
